@@ -1,13 +1,19 @@
 class Card:
-    def __init__(self, front, back, answer):
+    def __init__(self, front, back):
         self.front = front
         self.back = back
-        self.answer = answer
 
     def main(self):
-        print('Your answer is right!' if self.back == self.answer else 'Your answer is wrong...')
+        answer = input(f'Print the definition of "{self.front}":\n')
+        print('Correct' if self.back == answer else f'Wrong. The right answer is "{self.back}"')
 
 
 if __name__ == '__main__':
-    example = Card(input(), input(), input())
-    example.main()
+    deck = {}
+    card_count = int(input('Input the number of cards:\n'))
+    for i in range(card_count):
+        deck[str(i)] = Card(input(f'The term for card #{i + 1}:\n'),
+                            input(f'The definition for card #{i + 1}:\n'))
+
+    for value in deck.values():
+        value.main()
