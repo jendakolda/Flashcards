@@ -12,7 +12,7 @@ class DefDuplicityError(Exception):
 
 class Card:
     deck = {}
-
+    commands = {}
     def __init__(self, front, back):
         self.front = front
         self.back = back
@@ -36,8 +36,8 @@ class Card:
 
 
 if __name__ == '__main__':
-    # deck = {}
-    card_count = int(input('Input the number of cards:\n'))
+    # card_count = int(input('Input the number of cards:\n'))
+    action = input('Input the action (add, remove, import, export, ask, exit):\n')
     for i in range(card_count):
         print(f'The term for card #{i + 1}:')
         while True:
