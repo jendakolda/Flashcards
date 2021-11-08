@@ -11,24 +11,39 @@ class DefDuplicityError(Exception):
 
 
 class Card:
+    deck = {}
+
     def __init__(self, front, back):
         self.front = front
         self.back = back
 
     def card_check(self):
         answer = input(f'Print the definition of "{self.front}":\n')
-        print('Correct' if self.back == answer else f'Wrong. The right answer is "{self.back}"')
+        if answer == self.back:
+            return 'Correct'
+        elif answer != self.back and answer in [Card.deck[j].back for j in Card.deck.keys()]:
+            return f'Wrong.The right answer is "{self.back}", but your definition is correct ' \
+                   f'for "{Card.get_correct_term(answer)}".'
+        else:
+            return f'Wrong. The right answer is "{self.back}"'
+
+    @staticmethod
+    def get_correct_term(unknown_definition):
+        for j in Card.deck.keys():
+            if unknown_definition == Card.deck[j].back:
+                return Card.deck[j].front
+        return 'Unknown'
 
 
 if __name__ == '__main__':
-    deck = {}
+    # deck = {}
     card_count = int(input('Input the number of cards:\n'))
     for i in range(card_count):
-        print(f'Term for card #{i + 1}:')
+        print(f'The term for card #{i + 1}:')
         while True:
             term = input()
             try:
-                if term in (value.front for value in deck.values()):
+                if term in (value.front for value in Card.deck.values()):
                     raise TermDuplicityError(term)
                 break
             except TermDuplicityError as termerr:
@@ -38,13 +53,15 @@ if __name__ == '__main__':
         while True:
             definition = input()
             try:
-                if definition in (value.back for value in deck.values()):
+                if definition in (value.back for value in Card.deck.values()):
                     raise DefDuplicityError(definition)
                 break
             except DefDuplicityError as deferr:
                 print(deferr)
 
-        deck[str(i)] = Card(term, definition)
+        Card.deck[str(i)] = Card(term, definition)
 
-    for value in deck.values():
-        value.card_check()
+    for value in Card.deck.values():
+        print(value.card_check())
+
+
