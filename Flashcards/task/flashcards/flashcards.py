@@ -83,6 +83,21 @@ def exit_program():
     exit()
 
 
+def log():
+    log_file = input('File name:\n')
+    with open(log_file, 'w') as f:
+        pass
+    print('The log has been saved.')
+
+
+def hardest_card():
+    pass
+
+
+def reset_stats():
+    pass
+
+
 def get_action():
     action = input('Input the action (add, remove, import, export, ask, exit):\n')
     card_main(action)
@@ -94,7 +109,7 @@ def card_main(name):
 
 deck = {}
 commands = {'add': add_card, 'remove': remove_card, 'import': import_card, 'export': export_card,
-            'ask': ask_card, 'exit': exit_program, }
+            'ask': ask_card, 'exit': exit_program, 'log': log, 'hardest_card': hardest_card, 'reset stats': reset_stats}
 
 if __name__ == '__main__':
     while True:
