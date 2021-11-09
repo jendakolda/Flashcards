@@ -1,86 +1,101 @@
-class TermDuplicityError(Exception):
-    def __init__(self, duplicate_term):
-        self.message = f'The term "{duplicate_term}" already exists. Try again:'
+import random
+
+
+class DuplicityError(Exception):
+    def __init__(self, duplicate):
+        self.message = f'This {duplicate} already exists. Try again:'
         super().__init__(self.message)
 
 
-class DefDuplicityError(Exception):
-    def __init__(self, duplicate_def):
-        self.message = f'The definition "{duplicate_def}" already exists. Try again:'
-        super().__init__(self.message)
+def add_card():
+    print('The Card:')
+    while True:
+        term = input()
+        try:
+            if term in deck.keys():
+                raise DuplicityError('term')
+            break
+        except DuplicityError as err:
+            print(err)
+
+    print(f'The definition of the card:')
+    while True:
+        definition = input()
+        try:
+            if definition in deck.values():
+                raise DuplicityError('definition')
+            break
+        except DuplicityError as err:
+            print(err)
+    deck[term] = definition
+    print(f'The pair ("{term}":"{definition}") has been added')
 
 
-class Card:
-    deck = {}
+def remove_card():
+    card_to_remove = input('Which card?\n')
+    try:
+        deck.pop(card_to_remove)
+        print('The card has been removed.')
+    except KeyError:
+        print(f'Can\'t remove "{card_to_remove}": there is no such card.')
 
-    def __init__(self, front, back):
-        self.front = front
-        self.back = back
 
-    @staticmethod
-    def add_card():
-        print('The Card:\n')
-        while True:
-            term = input()
-            try:
-                if term in (value.front for value in Card.deck.values()):
-                    raise TermDuplicityError(term)
-                break
-            except TermDuplicityError as termerr:
-                print(termerr)
+def import_card():
+    import_file = input('File name:\n')
+    try:
+        with open(import_file, 'r') as f:
+            counter = 0
+            for line in f:
+                key, value = line.split()
+                deck[key] = value
+                counter += 1
+        print(f'{counter} cards have been loaded.')
+    except FileNotFoundError:
+        print('File not found.')
 
-        print(f'The definition of the card:\n')
-        while True:
-            definition = input()
-            try:
-                if definition in (value.back for value in Card.deck.values()):
-                    raise DefDuplicityError(definition)
-                break
-            except DefDuplicityError as deferr:
-                print(deferr)
-        Card.deck[term] = definition
 
-    def remove_card(self):
-        pass
+def export_card():
+    export_file = input('File name:\n')
+    with open(export_file, 'w') as f:
+        counter = 0
+        for key, value in deck.items():
+            print(key, value, file=f)
+            counter += 1
+    print(f'{counter} cards have been saved.')
 
-    def import_card(self):
-        pass
 
-    def export_card(self):
-        pass
+def ask_card():
+    for i in range(int(input('How many times to ask:\n'))):
+        random_key = random.choice(list(deck.keys()))
+        answer = input(f'Print the definition of "{random_key}":\n')
+        if answer == deck[random_key]:
+            print('Correct')
+        elif answer != deck[random_key] and answer in deck.values():
+            correct_key = [k for k in deck.keys() if answer == deck[k]]
+            print(f'Wrong.The right answer is "{deck[random_key]}", but your definition is correct '
+                  f'for "{correct_key[0]}".')
+        else:
+            print(f'Wrong. The right answer is "{deck[random_key]}"')
 
-    def ask_card(self):
-        for _ in range(int(input('How many times to ask:\n'))):
-            answer = input(f'Print the definition of "{self.front}":\n')
-            if answer == self.back:
-                print('Correct')
-            elif answer != self.back and answer in [Card.deck[j].back for j in Card.deck.keys()]:
-                print(f'Wrong.The right answer is "{self.back}", but your definition is correct ' \
-                      f'for "{Card.get_correct_term(answer)}".')
-            else:
-                print(f'Wrong. The right answer is "{self.back}"')
 
-    @staticmethod
-    def exit_program():
-        exit()
+def exit_program():
+    print('Bye bye!')
+    exit()
 
-    @staticmethod
-    def get_correct_term(unknown_definition):
-        for j in Card.deck.keys():
-            if unknown_definition == Card.deck[j].back:
-                return Card.deck[j].front
-        return 'Unknown'
 
-    commands = {'add': add_card, 'remove': remove_card, 'import': import_card, 'export': export_card,
-                'ask': ask_card, 'exit': exit_program, }
+def get_action():
+    action = input('Input the action (add, remove, import, export, ask, exit):\n')
+    card_main(action)
 
-    @staticmethod
-    def card_main(name):
-        Card.commands.get(name, lambda: 'Invalid')()
 
+def card_main(name):
+    commands.get(name, lambda: 'unknown_command')()
+
+
+deck = {}
+commands = {'add': add_card, 'remove': remove_card, 'import': import_card, 'export': export_card,
+            'ask': ask_card, 'exit': exit_program, }
 
 if __name__ == '__main__':
-    # card_count = int(input('Input the number of cards:\n'))
     while True:
-        action = input('Input the action (add, remove, import, export, ask, exit):\n')
-        Card.commands[action]()
+        get_action()
