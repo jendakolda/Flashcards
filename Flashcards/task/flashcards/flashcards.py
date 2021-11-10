@@ -27,7 +27,7 @@ def add_card():
             break
         except DuplicityError as err:
             print(err)
-    deck[term] = definition
+    deck[term] = list(definition, 0)
     print(f'The pair ("{term}":"{definition}") has been added')
 
 
@@ -46,8 +46,12 @@ def import_card():
         with open(import_file, 'r') as f:
             counter = 0
             for line in f:
-                key, value = line.split()
-                deck[key] = value
+                try:
+                    key, value, score = line.split()
+                except ValueError:
+                    key, value = line.split()
+                    score = 0
+                deck[key] = [value, int(score)]
                 counter += 1
         print(f'{counter} cards have been loaded.')
     except FileNotFoundError:
@@ -59,7 +63,7 @@ def export_card():
     with open(export_file, 'w') as f:
         counter = 0
         for key, value in deck.items():
-            print(key, value, file=f)
+            print(key, value[0], value[1], file=f)
             counter += 1
     print(f'{counter} cards have been saved.')
 
@@ -68,9 +72,9 @@ def ask_card():
     for i in range(int(input('How many times to ask:\n'))):
         random_key = random.choice(list(deck.keys()))
         answer = input(f'Print the definition of "{random_key}":\n')
-        if answer == deck[random_key]:
+        if answer == deck[random_key][0]:
             print('Correct')
-        elif answer != deck[random_key] and answer in deck.values():
+        elif answer != deck[random_key][0] and answer in [value[0] for value in deck.values()]:
             correct_key = [k for k in deck.keys() if answer == deck[k]]
             print(f'Wrong.The right answer is "{deck[random_key]}", but your definition is correct '
                   f'for "{correct_key[0]}".')
