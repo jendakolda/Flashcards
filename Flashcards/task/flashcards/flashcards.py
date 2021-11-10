@@ -22,12 +22,12 @@ def add_card():
     while True:
         definition = input()
         try:
-            if definition in deck.values():
+            if definition in [value[0] for value in deck.values()]:
                 raise DuplicityError('definition')
             break
         except DuplicityError as err:
             print(err)
-    deck[term] = list(definition, 0)
+    deck[term] = [definition, 0]
     print(f'The pair ("{term}":"{definition}") has been added')
 
 
@@ -75,11 +75,11 @@ def ask_card():
         if answer == deck[random_key][0]:
             print('Correct')
         elif answer != deck[random_key][0] and answer in [value[0] for value in deck.values()]:
-            correct_key = [k for k in deck.keys() if answer == deck[k]]
-            print(f'Wrong.The right answer is "{deck[random_key]}", but your definition is correct '
+            correct_key = [k for k in deck.keys() if answer == deck[k][0]]
+            print(f'Wrong.The right answer is "{deck[random_key][0]}", but your definition is correct '
                   f'for "{correct_key[0]}".')
         else:
-            print(f'Wrong. The right answer is "{deck[random_key]}"')
+            print(f'Wrong. The right answer is "{deck[random_key][0]}"')
 
 
 def exit_program():
@@ -95,15 +95,25 @@ def log():
 
 
 def hardest_card():
-    pass
+    hardest_score = max(deck.values(), key=lambda value: value)[1]
+    hardest_terms = [term for term, value in deck.items() if value[1] == hardest_score]
+    if hardest_score == 0:
+        print('There are no cards with errors.')
+    elif len(hardest_terms) == 1:
+        print(f'The hardest card is "{hardest_terms[0]}". You have {hardest_score} errors answering it')
+    elif len(hardest_terms) >= 2:
+        hardest_terms = ['"' + term + '"' for term in hardest_terms]
+        print(f"The hardest card is {', '.join(hardest_terms)}. You have {hardest_score} errors answering it")
 
 
 def reset_stats():
-    pass
+    for value in deck.values():
+        value[1] = 0
+    print('Card statistics have been reset.')
 
 
 def get_action():
-    action = input('Input the action (add, remove, import, export, ask, exit):\n')
+    action = input(f"Input the action ({', '.join(commands.keys())}):\n")
     card_main(action)
 
 
@@ -113,7 +123,7 @@ def card_main(name):
 
 deck = {}
 commands = {'add': add_card, 'remove': remove_card, 'import': import_card, 'export': export_card,
-            'ask': ask_card, 'exit': exit_program, 'log': log, 'hardest_card': hardest_card, 'reset stats': reset_stats}
+            'ask': ask_card, 'exit': exit_program, 'log': log, 'hardest card': hardest_card, 'reset stats': reset_stats}
 
 if __name__ == '__main__':
     while True:
