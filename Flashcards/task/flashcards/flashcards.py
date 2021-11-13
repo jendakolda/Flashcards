@@ -1,3 +1,4 @@
+import argparse
 import random
 from io import StringIO
 
@@ -41,10 +42,11 @@ def remove_card():
         log_and_print(f'Can\'t remove "{card_to_remove}": there is no such card.')
 
 
-def import_card():
-    import_file = log_and_input('File name:\n')
+def import_card(input_file=None):
+    if not input_file:
+        input_file = log_and_input('File name:\n')
     try:
-        with open(import_file, 'r') as f:
+        with open(input_file, 'r') as f:
             counter = 0
             for line in f:
                 try:
@@ -59,9 +61,10 @@ def import_card():
         log_and_print('File not found.')
 
 
-def export_card():
-    export_file = log_and_input('File name:\n')
-    with open(export_file, 'w') as f:
+def export_card(output_file=None):
+    if not output_file:
+        output_file = log_and_input('File name:\n')
+    with open(output_file, 'w') as f:
         counter = 0
         for key, value in deck.items():
             print(key, value[0], value[1], file=f)
@@ -86,6 +89,9 @@ def ask_card():
 
 
 def exit_program():
+    if export_file:
+        export_card(export_file)
+        # log_and_print(f'{len(deck.keys())} cards have been saved.')
     log_and_print('Bye bye!')
     exit()
 
@@ -139,11 +145,23 @@ def card_main(name):
     commands.get(name, lambda: 'unknown_command')()
 
 
-deck = {}
-commands = {'add': add_card, 'remove': remove_card, 'import': import_card, 'export': export_card,
-            'ask': ask_card, 'exit': exit_program, 'log': log, 'hardest card': hardest_card, 'reset stats': reset_stats}
-log_buffer = StringIO()
-
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Specify import and export file containing Flashcards.')
+    parser.add_argument('-i', '--import_from', help='File to import from')
+    parser.add_argument('-e', '--export_to')
+    deck = {}
+    commands = {'add': add_card, 'remove': remove_card, 'import': import_card, 'export': export_card,
+                'ask': ask_card, 'exit': exit_program, 'log': log, 'hardest card': hardest_card,
+                'reset stats': reset_stats}
+    log_buffer = StringIO()
+    import_file, export_file = None, None
+
+    args = parser.parse_args()
+    if args.import_from:
+        import_file = args.import_from
+        import_card(import_file)
+
+    if args.export_to:
+        export_file = args.export_to
     while True:
         get_action()
